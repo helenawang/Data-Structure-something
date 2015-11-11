@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1446994891 source:f:\ywmstl\sqlist\main.cpp
+	"SqList.h"
+	<cstdio>
+	<malloc.h>
+
+1447256234 f:\ywmstl\sqlist\sqlist.h
+
+1446995000 source:f:\ywmstl\sqlist\sqlist.cpp
+	"SqList.h"
+	<cstdio>
+	<malloc.h>
+

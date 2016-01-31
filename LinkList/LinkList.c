@@ -12,7 +12,7 @@ void CreateList(LinkList& L, int n){
 	L = (LinkList)malloc(sizeof(LNode));
 	L->next = L; //此为循环链表，若不循环则初始化L->next = NULL
 	Position p;
-	while(n--){
+	while(n-- >0){
 		p = (LNode*)malloc(sizeof(LNode));
 		p->data = n;
 		p->next = L->next;
@@ -91,38 +91,156 @@ Status Reverse(LinkList& L){
 
 void Traverse(LinkList& L,void (*visit)(LNode)){
 //遍历
+	printf("遍历结果：");
 	Position p = L->next;
 	while(p!=L){
 		visit(*p);
 		p = p->next;
 	}
+	printf("\n");
 }
 
 void print(LNode ln){
 	printf("[%d]",ln.data);
 }
 
-//集合交、并、差运算
-Status Intersect(LinkList& La, LinkList& Lb){
+Status Merge(LinkList& La, LinkList& Lb, LinkList& Lc){
+//归并有序链表La,Lb(所有重复元素均保留)，
+//结果以Lc指代（利用原表La,Lb的结点空间构造Lc）
+	Position pc = Lc ->next = Lc;
+	Position pa = La->next, pb = Lb->next;
+	while(pa!=La && pb!=Lb){
+		if(pa->data <= pb->data){
+			pc->next = pa; pc = pa;
+			pa = pa->next;
+		}else{
+			pc->next = pb; pc = pb;
+			pb = pb->next;
+		}
+	}
+	if(pa != La){
+		pc->next = pa;
+		while(pa->next != La) pa = pa->next;
+		pa->next = Lc;
+	}
+	if(pb != Lb){
+		pc->next = pb;
+		while(pb!=Lb) pb = pb->next;
+		pb->next = Lc;
+	}
+	free(La); free(Lb);
 	return OK;
 }
+
+//集合交、并、差运算
+Status Intersect(LinkList& La, LinkList& Lb, LinkList& Lc){
+//用Lc指代有序链表La,Lb的交集（重复元素都去掉）
+//利用原结点的空间构造Lc，释放无用结点
+//入口断言：La,Lb各自内部元素互异、有序
+	Position pc = Lc->next = Lc;
+	Position pa = La->next, pb = Lb->next;
+	while(pa!=La && pb!=Lb){
+		if(pa->data < pb->data)
+		{Position q = pa; pa = pa->next; free(q);}
+		else if(pa->data > pb->data)
+		{Position q = pb; pb = pb->next; free(q);}
+		else{
+			pc->next = pa; pc = pa; pa = pa->next;
+			Position q = pb; pb = pb->next; free(q);
+		}
+	}
+	pc->next = Lc;
+	while(pa != La){Position q = pa; pa = pa->next; free(q);}
+	while(pb != Lb){Position q = pb; pb = pb->next; free(q);}
+	free(La); free(Lb);
+	return OK;
+
+}
+
+Status Unite(LinkList& La, LinkList& Lb, LinkList& Lc){
+//用Lc指代有序链表La,Lb的并集（重复元素都去掉）
+//利用原结点空间构造Lc,释放无用结点
+//入口断言：La,Lb各自内部元素互异、有序
+	Position pc = Lc->next = Lc;
+	Position pa = La->next, pb = Lb->next;
+	while(pa!=La && pb!=Lb){
+		if(pa->data < pb->data)
+		{pc->next = pa; pc = pa; pa = pa->next;}
+		else if(pa->data > pb->data)
+		{pc->next = pb; pc = pb; pb = pb->next;}
+		else{
+			printf("%d与%d相等\n",pa->data,pb->data);
+			pc->next = pa; pc = pa; pa = pa->next;
+			Position q = pb; pb = pb->next; free(q);
+		}
+	}
+	while(pa != La){pc->next = pa; pc = pa; pa = pa->next;}
+	while(pb != Lb){pc->next = pb; pc = pb; pb = pb->next;}
+	pc->next = Lc;
+	free(La); free(Lb);
+	return OK;
+}
+
+Status Differ(LinkList& La, LinkList& Lb, LinkList& Lc){
+//用Lc指代有序链表La-Lb
+//利用原结点空间构造Lc,释放无用结点
+//入口断言：La,Lb各自内部元素互异、有序
+	Position pc = Lc->next = Lc;
+	Position pa = La->next, pb = Lb->next;
+	while(pa!=La && pb!=Lb){
+		if(pa->data < pb->data)
+		{pc->next = pa; pc = pa; pa = pa->next;}
+		else if(pa->data > pb->data)
+		{Position q = pb; pb = pb->next; free(q);}
+		else{
+			printf("%d与%d相等\n",pa->data,pb->data);
+			Position q = pa; pa = pa->next; free(q);
+			q = pb; pb = pb->next; free(q);
+		}
+	}
+	while(pa != La){pc->next = pa; pc = pa; pa = pa->next;}
+	pc->next = Lc;
+	while(pb != Lb){Position q = pb; pb = pb->next; free(q);}
+	free(La); free(Lb);
+	return OK;
+}
+
 
 int main()
 {
 	LinkList l;
 	CreateList(l, 10);
-	Reverse(l);
-	printf("逆置后：\n");
 	Traverse(l, print);
 	ElemType e;
 	if(Delete(l,1,e)){
-		printf("\n删除第个1元素后：\n");
+		printf("删除第个1元素后：\n");
 		Traverse(l,print);
 	}
-	if(Insert(l,1,55)){
-		printf("\n在第1个位置插入55之后：\n");
+	if(Insert(l,1,-55)){
+		printf("在第1个位置插入-55之后：\n");
 		Traverse(l,print);
 	}
-	printf("%d\n",NULL);
+	printf("\n");	
+	LinkList l2,l3;
+	CreateList(l2,5);
+	Traverse(l2,print);
+	CreateList(l3,0);
+/*	if(Merge(l,l2,l3)){
+		printf("归并l,l2为：\n");
+		Traverse(l3,print);
+	}
+	if(Intersect(l,l2,l3)){
+		printf("l,l2取交集为：\n");
+		Traverse(l3,print);
+	}
+	if(Unite(l,l2,l3)){
+		printf("l,l2取并集为：\n");
+		Traverse(l3,print);
+	}
+*/	
+	if(Differ(l,l2,l3)){
+		printf("l,l2取差集(l-l2)为：\n");
+		Traverse(l3,print);
+	}
 	return 0;
 }

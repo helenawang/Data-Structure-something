@@ -1,16 +1,80 @@
 #include <stdio.h>
 #include "include.h"
 
-//定长、顺序存储字符串
+//定长(宏MAXLEN)、顺序存储字符串
 #define MAXLEN 100
-typedef char SString[MAXLEN+1]; //SString[0]存储长度
+typedef char SString[MAXLEN+1]; //SString[0]存储长度,注意下标从1开始，结尾无\0
 
-Status StrAssign(SString S, char chars[]){
+Status StrAssign(SString& S, const char* chars){
+//用S返回将字符串chars封装成的串对象
 	int i=0;
 	for(i=0; chars[i]!='\0'; i++){
 		S[i+1] = chars[i];
 	}
 	S[0]=i; //记录长度
+}
+
+Status StrCopy(SString& S, SString T){
+//用S返回T的拷贝
+	int i=0;
+	for(i=0; i<=T[0]; i++)
+		S[i] = T[i];
+	return OK;
+}
+
+Status ClearString(SString& S){
+//入口断言：S存在
+//操作结果：将S清为空串
+	S[0] = 0;
+	return OK;
+}
+
+Status StrEmpty(SString S){
+//入口断言：S存在
+	if(S[0]==0) return TRUE;
+	else return FALSE;
+}
+
+int StrLength(SString S){
+//入口断言：S存在
+	return S[0];
+}
+
+int StrCompare(SString S, SString T){
+//入口断言：S,T存在
+//操作结果：按字典序比较，S>T返回值>0,S=T返回0，S<T返回值<0
+	int i, j;
+	for(i=1, j=1; i<=S[0] && j<=T[0]; i++, j++){
+		if(S[i] != T[j]) return S[i]-T[i];
+	}
+	return S[0]-T[0]; //存在子串关系
+}
+
+Status Concat(SString& S1, SString S2){
+//入口断言：S1, S2存在
+//操作结果：用S1返回S1连接S2而成的新串，若S1的空间不足，截断并返回FALSE
+	if(S1[0]+S2[0] <= MAXLEN){ //S1足够容纳完整的S1+S2
+		int i;
+		for(i=S1[0]+1; i<=S1[0]+S2[0]; i++) S1[i] = S2[i-S1[0]];
+		S1[0] += S2[0];
+		return TRUE;
+	}else{
+		int i;
+		for(i=S1[0]+1; i<=MAXLEN; i++) S1[i] = S2[i-S1[0]];
+		S1[0] = MAXLEN;
+		return FALSE; //截断了S2
+	}
+}
+
+Status SubString(SString& Sub, SString S, int pos, int len){
+//入口断言：S存在
+//操作结果：用Sub返回S从第pos个字符开始长度为len的字串；若pos或len值非法，返回ERROR
+	if(pos<1 || pos>S[0] || len<0 || len>S[0]-pos+1) return ERROR;
+	int i, j;
+	for(i=1, j=pos; i<=len; i++, j++)
+		Sub[i] = S[j];
+	Sub[0] = len;
+	return OK;
 }
 
 int Index(SString S, SString T, int pos){
@@ -57,16 +121,57 @@ void get_nextval(SString T, int nextval[]){
 	}
 }
 
+void StrPrint(SString S){
+	for(int i=1; i<=S[0]; i++)
+		putchar(S[i]);
+	putchar('\n');
+}
+
+Status Replace(SString& S, SString T, SString V){
+//入口断言：S,T,V存在
+//操作结果：将S中出现的所有不重复的T都替换为V
+	int k = Index(S, T, 1);
+	if(k){
+		SString suffix;	StrAssign(suffix,"");
+		int n = T[0], m = S[0];
+		while(k){
+			printf("%d\n",k);
+			SString temp;	
+			SubString(temp, S, 1, k-1); //当前第一个T的前缀
+			StrPrint(temp);
+			if(Concat(suffix, temp)){
+				StrPrint(suffix);
+				Concat(suffix, V); //追加上V
+				StrPrint(suffix);
+				m -= (k-1)+n; //处理掉上一组后剩余的后缀长度
+				SubString(temp, S, k+n, m);
+				StrCopy(S, temp); //S被截断为尚未处理的后缀
+				k = Index(S, T, 1);
+			}else return OVERFLOW; //S空间不足
+		}
+		if(Concat(suffix, S)){
+			StrCopy(S, suffix);
+			return OK;
+		}else return OVERFLOW;
+	}
+	else return OK; //T未出现过
+}
+
+
 int main()
 {
 	SString s;
 	StrAssign(s,"acabaabaabcacaabc");
 	SString t;
 	StrAssign(t,"abaabcac");
+	StrPrint(s);
+	StrPrint(t);
+	
 	int next[10];
 	get_next(t,next);
-	printf("%d %d\n",s[0],t[0]);
-//	printf("%s\n%s\n",s,t);
-	printf("%d\n",Index_KMP(s,t,1,next));
+	
+	SString v;
+	StrAssign(v,"x");
+	if(Replace(s,t,v)) StrPrint(s);
 	return 0;
 }

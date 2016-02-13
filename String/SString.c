@@ -214,7 +214,7 @@ int main()
 	int cnt[10];
 	if(Count(s,v,cnt)){
 		StrPrint(v);
-		for(int i=0; i<v[0]; i++)
+		for(int i=0; i<=v[0]; i++)
 			printf("%d ",cnt[i]);
 	}
 

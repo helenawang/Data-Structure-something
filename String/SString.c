@@ -157,6 +157,42 @@ Status Replace(SString& S, SString T, SString V){
 	else return OK; //T未出现过
 }
 
+Status Reverse(SString& S){
+//入口断言：S存在
+//操作结果：对S置逆
+	int len = S[0];
+	if(len>1){
+		SString t1; SubString(t1, S, 1, len/2 );
+		SString t2; SubString(t2, S, len/2+1, len-len/2);
+		Reverse(t1); Reverse(t2);
+		Concat(t2, t1);
+		StrCopy(S, t2);
+	}
+	return OK;
+}
+
+Status Count(SString S, SString& C, int cnt[]){
+//入口断言：S存在
+//操作结果：C顺序存放S中出现过的互异的字符，cnt顺序存放C中字符出现的次数,下标与C中的下标一致
+	for(int i=0; i<sizeof(cnt); i++) cnt[i] = 0;
+	int k=0;//cnt的末尾指针，即当前记录的字符个数
+	for(int i=1; i<=S[0]; i++){
+		int flag=0; //假设之前没记过
+		for(int j=1; j<=k; j++){
+			if(S[i]==C[j]){//复现的字符
+				cnt[j]++;
+				flag=1;
+				break;
+			}
+		}
+		if(!flag){ //新字符
+			C[++k] = S[i];
+			cnt[k] = 1;
+		}
+	}
+	C[0] = k;
+	return OK;
+}
 
 int main()
 {
@@ -166,12 +202,21 @@ int main()
 	StrAssign(t,"abaabcac");
 	StrPrint(s);
 	StrPrint(t);
-	
+
 	int next[10];
 	get_next(t,next);
 	
 	SString v;
-	StrAssign(v,"x");
+	StrAssign(v,"xy");
 	if(Replace(s,t,v)) StrPrint(s);
+	if(Reverse(v)) StrPrint(v);
+	
+	int cnt[10];
+	if(Count(s,v,cnt)){
+		StrPrint(v);
+		for(int i=0; i<v[0]; i++)
+			printf("%d ",cnt[i]);
+	}
+
 	return 0;
 }

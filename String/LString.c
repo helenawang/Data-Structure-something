@@ -62,39 +62,53 @@ Status Concat(StrPtr& T, StrPtr S1, StrPtr S2){
 	if(!S1->next && !S2->next){ //S1,S2均为空，结果亦为空
 		T->next = NULL;
 		return OK;
-	}else{
+	}else{//这段重构了一次以缩减代码长度
 		StrNode *p, *q;//分别指向T, S
 		p = (StrNode*)malloc(sizeof(StrNode));
 		T->next = p; //记下首元位置
-		if(S1->next){//S1不空
-			p->data = S1->next->data;
-			q = S1->next->next;
-			while(q){
-				p->next = (StrNode*)malloc(sizeof(StrNode));
-				p = p->next;
-				p->data = q->data;
-				q = q->next;
-			}
-			q = S2->next;
-			while(q){
-				p->next = (StrNode*)malloc(sizeof(StrNode));
-				p = p->next;
-				p->data = q->data;
-				q = q->next;
-			}
-		}else{
-			p->data = S2->next->data;
-			q = S2->next->next;
-			while(q){
-				p->next = (StrNode*)malloc(sizeof(StrNode));
-				p = p->next;
-				p->data = q->data;
-				q = q->next;
-			}
+		q = S1->next;
+		while(q){
+			p->next = (StrNode*)malloc(sizeof(StrNode));
+			p = p->next;
+			p->data = q->data;
+			q = q->next;
+		}
+		q = S2->next;
+		while(q){//如果S2不空，复制S2
+			p->next = (StrNode*)malloc(sizeof(StrNode));
+			p = p->next;
+			p->data = q->data;
+			q = q->next;
 		}
 	}
 	return OK;
 }
+
+Status SubString(StrPtr& Sub, StrPtr S, int pos, int len){
+//入口断言：S存在
+//操作结果：用Sub返回S从第pos个字符开始长度为len的字串,非法时返回ERROR
+	if(pos<1 || len<0) return ERROR;
+	int i=1;
+	StrNode *p, *q;
+	p = S->next;
+	while(i<pos){
+		p = p->next;
+		i++;
+	}
+	if(!p) return ERROR; //i>strlen
+	Sub = (StrPtr)malloc(sizeof(StrNode));
+	q = Sub;
+	i=0;
+	while(p && i<len){
+		q->next = (StrNode*)malloc(sizeof(StrNode));
+		q = q->next;
+		q->data = p->data;
+		p = p->next;
+		i++;
+	}
+	return OK;
+}
+
 Status StrPrint(StrPtr S){
 //入口断言：S已存在
 	StrNode* p = S->next;
@@ -113,5 +127,6 @@ int main()
 	StrPrint(s);
 	StrAssign(t, "ccdd");
 	if(Concat(v,s,t)) StrPrint(v);
+	if(SubString(v,s,2,4)) StrPrint(v);
 	return 0;
 }

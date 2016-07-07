@@ -1,0 +1,5 @@
+STU
+a^(),
+S 3 a ^ (T)
+T 1 SU
+U 2 ,SU $

@@ -1,0 +1,5 @@
+KeywordCount是一个用于统计源程序中各保留字出现次数的小程序。目前支持C语言（C89）。
+
+使用说明：
+1. 可将src/util目录下的Count.java作为程序入口，在main方法的第25行Preprocess构造函数中设置好待分析的源程序文件的路径，即可运行。
+2. 关键字表存放在data/keywords.txt文件中。

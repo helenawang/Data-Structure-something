@@ -21,6 +21,7 @@ public class Preprocess {
 	 * @return
 	 */
 	public static List<String> preprocessFile(String filename) {
+		long start = System.currentTimeMillis();
 		List<String> words = null;
 		try {
 			//从文件读入所有字符到一个String（太长的文本--有30MB多，会内存溢出吧，改成流式的更合适）
@@ -53,6 +54,8 @@ public class Preprocess {
 //			for(String word: words) {
 //				System.out.println(word);
 //			}
+			long end = System.currentTimeMillis();
+			System.out.println("预处理完成，用时 " + (int)(end - start) + " ms");
 		} catch (IOException e) {
 			System.err.println("read file [" + filename + "] fail!");
 			e.printStackTrace();

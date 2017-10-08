@@ -2,7 +2,15 @@ package main;
 
 import java.util.List;
 
+import model.ACA;
+
 public class Count {
+	/**
+	 * 默认实现
+	 * @param words
+	 * @param keywords
+	 * @return
+	 */
 	public static int[] count(List<String> words, String[] keywords) {
 		long start = System.currentTimeMillis();
 		int[] results = new int[keywords.length];
@@ -14,6 +22,23 @@ public class Count {
 				}
 			}
 			cur++;
+		}
+		long end = System.currentTimeMillis();
+		System.out.println("统计完成， 用时 " + (int)(end - start) + " ms");
+		return results;
+	}
+	public static int[] countUsingACA(List<String> words, String[] keywords, ACA aca) {
+		long start = System.currentTimeMillis();
+		int[] results = new int[keywords.length];
+		for(int i=0; i<keywords.length; i++) {
+			results[i] = 0;
+		}
+		for(String word: words) {
+//			System.out.println("matching text " + word);
+			int[] partial_result = aca.match(word, keywords.length);
+			for(int i=0; i<keywords.length; i++) {
+				results[i] += partial_result[i];
+			}
 		}
 		long end = System.currentTimeMillis();
 		System.out.println("统计完成， 用时 " + (int)(end - start) + " ms");

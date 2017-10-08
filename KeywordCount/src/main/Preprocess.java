@@ -49,8 +49,18 @@ public class Preprocess {
 //			System.out.println("去除标点后-------------------------");
 //			System.out.println(contentsDeletePunctuation);
 			
+			//去除数字，用空格替换
+			String contentsDeleteDigits = deleteDigits(contentsDeletePunctuation);
+//			System.out.println("去除数字后-------------------------");
+//			System.out.println(contentsDeleteDigits);
+			
+			//去除大写字母，用空格替换
+			String contentsDeleteCapitals = deleteCapitals(contentsDeleteDigits);
+//			System.out.println("去除大写字母后-------------------------");
+//			System.out.println(contentsDeleteCapitals);
+			
 			//按空白符切分成词链表
-			words = Arrays.asList(contentsDeletePunctuation.split(delimiters));
+			words = Arrays.asList(contentsDeleteCapitals.split(delimiters));
 //			for(String word: words) {
 //				System.out.println(word);
 //			}
@@ -119,7 +129,8 @@ public class Preprocess {
 			int asc = (int)c;
 			if(asc >= 33 && asc <= 47
 			|| asc >= 58 && asc <= 64
-			|| asc >= 91 && asc <= 96) {
+			|| asc >= 91 && asc <= 96
+			|| asc >= 123 && asc <= 126) {
 				stringBuilder.append(' ');
 			}else {
 				stringBuilder.append(c);
@@ -127,7 +138,40 @@ public class Preprocess {
 		}
 		return stringBuilder.toString();
 	}
-	
+	/**
+	 * 去除数字
+	 * @param words
+	 */
+	private static String deleteDigits(String contents) {
+		StringBuilder stringBuilder = new StringBuilder();
+		char[] charArray = contents.toCharArray();
+		for(char c: charArray) {
+			int asc = (int)c;
+			if(asc >= 48 && asc <= 57) {
+				stringBuilder.append(' ');
+			}else {
+				stringBuilder.append(c);
+			}
+		}
+		return stringBuilder.toString();
+	}
+	/**
+	 * 去除大写字母
+	 * @param words
+	 */
+	private static String deleteCapitals(String contents) {
+		StringBuilder stringBuilder = new StringBuilder();
+		char[] charArray = contents.toCharArray();
+		for(char c: charArray) {
+			int asc = (int)c;
+			if(asc >= 65 && asc <= 90) {
+				stringBuilder.append(' ');
+			}else {
+				stringBuilder.append(c);
+			}
+		}
+		return stringBuilder.toString();
+	}
 	/**
 	 * 去除/* 形式的注释
 	 * @前提：已去除//的单行注释

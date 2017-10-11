@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,7 +62,14 @@ public class Preprocess {
 			
 			//按空白符切分成词链表
 			words = Arrays.asList(contentsDeleteCapitals.split(delimiters));
-//			for(String word: words) {
+			System.out.println("filter before:     " + words.size());
+			
+			List<String> words_filtered = filterByLength(words);
+			System.out.println("filter by length:  " + words_filtered.size());
+			
+			words_filtered = filterByInitial(words_filtered);
+			System.out.println("filter by initial: " + words_filtered.size());
+//			for(String word: words_filtered) {
 //				System.out.println(word);
 //			}
 			long end = System.currentTimeMillis();
@@ -76,7 +84,32 @@ public class Preprocess {
 	public static void preprocess() {
 		
 	}
-	
+	private static List<String> filterByInitial(List<String> words) {
+		ArrayList<String> words_filtered = new ArrayList<>();
+		for(String word: words) {
+			char c = word.charAt(0);//首字母满足一定规则
+			if(c >= 'a' && c <= 'g'
+				|| c == 'i' || c == 'l'
+				|| c >= 'r' && c <= 'w') {
+				words_filtered.add(word);
+			}
+		}
+		return words_filtered;
+	}
+	/**
+	 * 长度2-8之间
+	 * @param words
+	 * @return
+	 */
+	private static List<String> filterByLength(List<String> words) {
+		ArrayList<String> words_filtered = new ArrayList<>();
+		for(String word: words) {
+			if(word.length() >=2 && word.length() <= 8) {
+				words_filtered.add(word);
+			}
+		}
+		return words_filtered;
+	}
 	/**
 	 * 去除单行注释-DFA实现
 	 * @param 源程序String
@@ -119,7 +152,7 @@ public class Preprocess {
 	}
 	
 	/**
-	 * 去除标点符号
+	 * 去除标点符号，下划线保留，因为可能出现在标识符中
 	 * @param words
 	 */
 	private static String deletePunctuation(String contents) {
@@ -129,7 +162,7 @@ public class Preprocess {
 			int asc = (int)c;
 			if(asc >= 33 && asc <= 47
 			|| asc >= 58 && asc <= 64
-			|| asc >= 91 && asc <= 96
+			|| asc >= 91 && asc <= 96 && asc != 95
 			|| asc >= 123 && asc <= 126) {
 				stringBuilder.append(' ');
 			}else {

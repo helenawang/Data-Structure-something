@@ -9,19 +9,21 @@ import java.util.*;
  */
 public class ACA {
 	private static int FAILURE = -1;
-	private static int MAX_STATE = 256;
+	private static int MAX_STATE = 8 * 27;
+	private static int SIGMA_SIZE = 27;//26个小写字母，下划线
 	private static char[] SIGMA;
 	{//fill sigma
-		SIGMA = new char[26];
+		SIGMA = new char[SIGMA_SIZE];
 		for(int i=0; i<26; i++) {
 			SIGMA[i] = (char) ((int)'a' + i);
 		}
+		SIGMA[26] = '_';
 	}
 	private int[][] gotoArray;
 	{//init root node (state 0)
 		gotoArray = new int[MAX_STATE][];//预留这么多状态节点
 		gotoArray[0] = new int[SIGMA.length];//留出虚拟节点的存储空间
-		for(int i=0; i<26; i++) {//全部初始化为failure
+		for(int i=0; i<SIGMA_SIZE; i++) {//全部初始化为failure
 			gotoArray[0][i] = FAILURE;
 		}
 	}
@@ -41,7 +43,6 @@ public class ACA {
 	{
 		failureArray = new int[MAX_STATE];
 	}
-	private int[] failureArrayGeneral;
 	private int goTo(int state, char a) {
 		return gotoArray[state][getCharIndex(a)];
 	}
@@ -53,9 +54,6 @@ public class ACA {
 	}
 	private List<Integer> outputIndex(int state) {
 		return outputArrayIndex.get(state);
-	}
-	private int falureGeneral(int state) {
-		return failureArrayGeneral[state];
 	}
 	private Queue<Integer> queue;//构建failure表使用
 	/**
@@ -169,19 +167,13 @@ public class ACA {
 		}
 	}
 	/**
-	 * 对failure表的优化，去除多余比较
-	 * 论文中没有以伪码形式给出算法，先不实现这个了
-	 */
-	private void buildFailureGeneral() {
-		
-	}
-	/**
-	 * 把字母a-z映射到整数0-25
+	 * 把字母a-z映射到整数0-25，下划线映射到26
 	 * @param a
 	 * @return
 	 */
 	private int getCharIndex(char a) {
-		return (int)(a - 'a');
+		if(a == '_') return 26;
+		else return (int)(a - 'a');
 	}
 	/**
 	 * 为state的子节点预留空间
@@ -189,7 +181,7 @@ public class ACA {
 	 */
 	private void createNodes(int state) {
 		gotoArray[state] = new int[SIGMA.length];//留出虚拟节点的存储空间
-		for(int i=0; i<26; i++) {//全部初始化为failure
+		for(int i=0; i<SIGMA_SIZE; i++) {//全部初始化为failure
 			gotoArray[state][i] = FAILURE;
 		}
 	}

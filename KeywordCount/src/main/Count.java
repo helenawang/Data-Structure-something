@@ -5,6 +5,7 @@ import java.util.List;
 import model.ACA;
 
 public class Count {
+	static int time_ms = 0;
 	/**
 	 * 默认实现
 	 * @param words
@@ -24,7 +25,8 @@ public class Count {
 			cur++;
 		}
 		long end = System.currentTimeMillis();
-		System.out.println("统计完成， 用时 " + (int)(end - start) + " ms");
+		time_ms = (int)(end - start);
+		System.out.println("统计完成， 用时 " + time_ms + " ms");
 		return results;
 	}
 	public static int[] countUsingACA(List<String> words, String[] keywords, ACA aca) {

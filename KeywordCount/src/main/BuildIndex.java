@@ -8,6 +8,7 @@ import model.ACA;
 
 public class BuildIndex {
 	static String[] keywords;
+	static int time_ms = 0;
 	/**
 	 * 默认实现
 	 * @param filename
@@ -32,7 +33,8 @@ public class BuildIndex {
 			e.printStackTrace();
 		}
 		long end = System.currentTimeMillis();
-		System.out.println("建立索引完成，用时 " + (int)(end - start) + " ms");
+		time_ms = (int)(end - start);
+		System.out.println("建立索引完成，用时 " + time_ms + " ms");
 		return keywords;
 	}
 	/**

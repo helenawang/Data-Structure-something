@@ -60,7 +60,8 @@ public class BuildIndex {
 		ACA aca = new ACA();
 		aca.buildGoto(keywords);
 		aca.buildFailure();
-		System.out.println("建立索引完成，用时 " + (int)(end - start) + " ms");
+		time_ms = (int)(end - start);
+		System.out.println("建立索引完成，用时 " + time_ms + " ms");
 		return aca;
 	}
 	public static void main(String[] args) {

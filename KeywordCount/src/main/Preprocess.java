@@ -15,7 +15,8 @@ import java.util.List;
  */
 public class Preprocess {
 	static String delimiters = "\\s+";//分隔符：应为一个或多个空格、TAB、回车；看来\s包括了回车和TAB?
-
+	static int lines = 0;//代码行数（包括注释）
+	static int time_ms = 0;
 	/**
 	 * 预处理对外接口，从源程序到过滤后的词表
 	 * @param filename
@@ -29,6 +30,9 @@ public class Preprocess {
 			String contents = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
 //			System.out.println("读入源程序--------------------");
 //			System.out.println(contents);
+			
+			//数回车个数，计算代码行数
+			lines = countLines(contents);
 			
 			//去除单行注释
 			String contentsDeleteSC = deleteSingleLineComment(contents);
@@ -62,18 +66,19 @@ public class Preprocess {
 			
 			//按空白符切分成词链表
 			words = Arrays.asList(contentsDeleteCapitals.split(delimiters));
-			System.out.println("filter before:     " + words.size());
+			System.out.println("filter before:     " + words.size() + " 个单词");
 			
 			List<String> words_filtered = filterByLength(words);
-			System.out.println("filter by length:  " + words_filtered.size());
+			System.out.println("filter by length:  " + words_filtered.size() + " 个单词");
 			
 			words_filtered = filterByInitial(words_filtered);
-			System.out.println("filter by initial: " + words_filtered.size());
+			System.out.println("filter by initial:  " + words_filtered.size() + " 个单词");
 //			for(String word: words_filtered) {
 //				System.out.println(word);
 //			}
 			long end = System.currentTimeMillis();
-			System.out.println("预处理完成，用时 " + (int)(end - start) + " ms");
+			time_ms = (int)(end - start);
+			System.out.println("预处理完成，用时 " + time_ms + " ms");
 		} catch (IOException e) {
 			System.err.println("read file [" + filename + "] fail!");
 			e.printStackTrace();
@@ -84,6 +89,21 @@ public class Preprocess {
 	public static void preprocess() {
 		
 	}
+	private static int countLines(String contents) {
+		int lines = 0;
+		char[] charArray = contents.toCharArray();
+		for(char c: charArray) {
+			if(c == '\n') {
+				lines++;
+			}
+		}
+		return lines;
+	}
+	/**
+	 * 首字母是关键字的首字母的保留
+	 * @param words
+	 * @return
+	 */
 	private static List<String> filterByInitial(List<String> words) {
 		ArrayList<String> words_filtered = new ArrayList<>();
 		for(String word: words) {
